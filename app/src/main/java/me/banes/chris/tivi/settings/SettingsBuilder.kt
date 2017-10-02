@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.settings
@@ -24,6 +23,6 @@ import dagger.android.ContributesAndroidInjector
 internal abstract class SettingsBuilder {
 
     @ContributesAndroidInjector
-    internal abstract fun settingsActivity() : SettingsActivity
+    internal abstract fun settingsActivity(): SettingsActivity
 
 }

@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.api
@@ -27,5 +26,6 @@ package me.banes.chris.tivi.api
 enum class Status {
     SUCCESS,
     ERROR,
-    LOADING
+    REFRESHING,
+    LOADING_MORE
 }

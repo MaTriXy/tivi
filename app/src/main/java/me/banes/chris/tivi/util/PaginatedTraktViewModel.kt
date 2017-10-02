@@ -12,19 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.util
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.LiveDataReactiveStreams
 import android.arch.lifecycle.MutableLiveData
 import me.banes.chris.tivi.api.Resource
 import me.banes.chris.tivi.api.Status
 import me.banes.chris.tivi.calls.PaginatedTraktCall
 import me.banes.chris.tivi.data.TiviShow
-import plusAssign
+import me.banes.chris.tivi.extensions.plusAssign
 
 open class PaginatedTraktViewModel<R>(
         val schedulers: AppRxSchedulers,
@@ -33,8 +31,8 @@ open class PaginatedTraktViewModel<R>(
     /**
      * This is what my UI (Fragment) observes. Its backed by Room and a network call
      */
-    val data: LiveData<List<TiviShow>> by lazy {
-        LiveDataReactiveStreams.fromPublisher(call.data())
+    val data: LiveData<List<TiviShow>> by lazy(mode = LazyThreadSafetyMode.NONE) {
+        ReactiveLiveData(call.data())
     }
 
     val messages = MutableLiveData<Resource>()
@@ -47,18 +45,18 @@ open class PaginatedTraktViewModel<R>(
     fun onListScrolledToEnd() {
         disposables += call.loadNextPage()
                 .observeOn(schedulers.main)
-                .doOnSubscribe { messages.value = Resource(Status.LOADING) }
-                .doOnError { messages.value = Resource(Status.ERROR, it.localizedMessage) }
-                .doOnComplete { messages.value = Resource(Status.SUCCESS) }
-                .subscribe()
+                .doOnSubscribe { messages.value = Resource(Status.LOADING_MORE) }
+                .subscribe(
+                        { messages.value = Resource(Status.SUCCESS) },
+                        { messages.value = Resource(Status.ERROR, it.localizedMessage) })
     }
 
     fun fullRefresh() {
         disposables += call.refresh()
                 .observeOn(schedulers.main)
-                .doOnSubscribe { messages.value = Resource(Status.LOADING) }
-                .doOnError { messages.value = Resource(Status.ERROR, it.localizedMessage) }
-                .doOnComplete { messages.value = Resource(Status.SUCCESS) }
-                .subscribe()
+                .doOnSubscribe { messages.value = Resource(Status.REFRESHING) }
+                .subscribe(
+                        { messages.value = Resource(Status.SUCCESS) },
+                        { messages.value = Resource(Status.ERROR, it.localizedMessage) })
     }
 }

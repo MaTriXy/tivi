@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.util
@@ -24,7 +23,7 @@ import io.reactivex.disposables.CompositeDisposable
  * Simple ViewModel which exposes a CompositeDisposable which is automatically cleared when
  * the ViewModel is cleared.
  */
-open class RxAwareViewModel: ViewModel() {
+open class RxAwareViewModel : ViewModel() {
 
     val disposables = CompositeDisposable()
 

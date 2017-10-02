@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.settings
@@ -21,7 +20,7 @@ import android.os.Bundle
 import android.preference.PreferenceFragment
 import me.banes.chris.tivi.R
 
-class SettingsFragment: PreferenceFragment() {
+class SettingsFragment : PreferenceFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

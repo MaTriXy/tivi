@@ -12,11 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi
 
+import com.squareup.leakcanary.LeakCanary
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
 import me.banes.chris.tivi.inject.DaggerAppComponent
@@ -26,6 +26,14 @@ class TiviApplication : DaggerApplication() {
 
     override fun onCreate() {
         super.onCreate()
+
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            // This process is dedicated to LeakCanary for heap analysis.
+            // You should not init your app in this process.
+            return
+        }
+
+        LeakCanary.install(this)
 
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())

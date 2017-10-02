@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.home
@@ -22,7 +21,10 @@ import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
+import me.banes.chris.tivi.home.discover.DiscoverBuilder
 import me.banes.chris.tivi.home.library.LibraryBuilder
+import me.banes.chris.tivi.home.popular.PopularBuilder
+import me.banes.chris.tivi.home.trending.TrendingBuilder
 import me.banes.chris.tivi.inject.ViewModelKey
 
 @Module
@@ -34,7 +36,7 @@ internal abstract class HomeBuilder {
             TrendingBuilder::class,
             PopularBuilder::class,
             LibraryBuilder::class))
-    internal abstract fun homeActivity() : HomeActivity
+    internal abstract fun homeActivity(): HomeActivity
 
     @Binds
     @IntoMap

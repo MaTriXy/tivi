@@ -12,17 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package me.banes.chris.tivi.home.trending
+package me.banes.chris.tivi.home.popular
 
 import android.os.Bundle
 import android.view.View
 import com.uwetrottmann.trakt5.entities.Show
 import kotlinx.android.synthetic.main.fragment_rv_grid.*
 import me.banes.chris.tivi.R
-import me.banes.chris.tivi.home.popular.PopularShowsViewModel
 import me.banes.chris.tivi.util.PaginatedGridFragment
 
 class PopularShowsFragment

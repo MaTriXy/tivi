@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.util
@@ -22,5 +21,5 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 data class AppRxSchedulers(val disk: Scheduler = Schedulers.single(),
-                      val network: Scheduler = Schedulers.io(),
-                      val main: Scheduler = AndroidSchedulers.mainThread())
+        val network: Scheduler = Schedulers.io(),
+        val main: Scheduler = AndroidSchedulers.mainThread())

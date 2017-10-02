@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.ui
@@ -21,10 +20,10 @@ import android.graphics.Rect
 import android.support.v7.widget.RecyclerView
 import android.view.View
 
-class SpacingItemDecorator(val spacing: Int): RecyclerView.ItemDecoration() {
+class SpacingItemDecorator(val spacing: Int) : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView,
-                                state: RecyclerView.State) {
+            state: RecyclerView.State) {
         outRect.set(spacing, spacing, spacing, spacing)
     }
 

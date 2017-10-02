@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.home.library
@@ -61,4 +60,10 @@ class LibraryFragment : HomeFragment<LibraryViewModel>() {
         return library_toolbar.menu.findItem(R.id.home_menu_user_login)
     }
 
+    internal fun scrollToTop() {
+        library_rv.apply {
+            stopScroll()
+            smoothScrollToPosition(0)
+        }
+    }
 }

@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.ui
@@ -23,7 +22,7 @@ import android.widget.TextView
 import com.xwray.groupie.ViewHolder
 import me.banes.chris.tivi.R
 import me.banes.chris.tivi.data.TiviShow
-import loadFromUrl
+import me.banes.chris.tivi.extensions.loadFromUrl
 
 class TiviShowGridViewHolder(itemView: View) : ViewHolder(itemView) {
 

@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.data
@@ -24,10 +23,10 @@ import java.util.Date
 
 @Entity(tableName = "users")
 data class TraktUser(
-        @PrimaryKey @ColumnInfo(name = "id") var id: Long? = null,
-        @ColumnInfo(name = "username") var username: String? = null,
-        @ColumnInfo(name = "name") var name: String? = null,
-        @ColumnInfo(name = "joined_date") var joined: Date? = null,
-        @ColumnInfo(name = "location") var location: String? = null,
-        @ColumnInfo(name = "about") var about: String? = null,
-        @ColumnInfo(name = "avatar_url") var avatarUrl: String? = null)
+        @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Long? = null,
+        @ColumnInfo(name = "username") val username: String,
+        @ColumnInfo(name = "name") val name: String,
+        @ColumnInfo(name = "joined_date") val joined: Date? = null,
+        @ColumnInfo(name = "location") val location: String? = null,
+        @ColumnInfo(name = "about") val about: String? = null,
+        @ColumnInfo(name = "avatar_url") val avatarUrl: String? = null)

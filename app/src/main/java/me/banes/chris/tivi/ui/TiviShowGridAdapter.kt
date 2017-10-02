@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.ui
@@ -53,7 +52,7 @@ internal class TiviShowGridAdapter
     }
 
     private class DiffCb(val oldItems: List<TiviShow>,
-                         val newItems: List<TiviShow>) : DiffUtil.Callback() {
+            val newItems: List<TiviShow>) : DiffUtil.Callback() {
         override fun getOldListSize(): Int {
             return oldItems.size
         }

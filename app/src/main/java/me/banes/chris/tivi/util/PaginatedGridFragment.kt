@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.util
@@ -58,8 +57,8 @@ abstract class PaginatedGridFragment<T, VM : PaginatedTraktViewModel<T>>(
             addItemDecoration(SpacingItemDecorator(paddingLeft))
             addOnScrollListener(EndlessRecyclerViewScrollListener(
                     grid_recyclerview.layoutManager, { _: Int, _: RecyclerView ->
-                        if (userVisibleHint) viewModel.onListScrolledToEnd()
-                    }))
+                if (userVisibleHint) viewModel.onListScrolledToEnd()
+            }))
         }
 
         grid_swipe_refresh.setOnRefreshListener { viewModel.fullRefresh() }
@@ -81,13 +80,18 @@ abstract class PaginatedGridFragment<T, VM : PaginatedTraktViewModel<T>>(
             when (it?.status) {
                 Status.SUCCESS -> {
                     grid_swipe_refresh.isRefreshing = false
+                    progress_loadmore.visibility = View.GONE
                 }
                 Status.ERROR -> {
                     grid_swipe_refresh.isRefreshing = false
+                    progress_loadmore.visibility = View.GONE
                     Snackbar.make(grid_recyclerview, it.message ?: "EMPTY", Snackbar.LENGTH_SHORT).show()
                 }
-                Status.LOADING -> {
+                Status.REFRESHING -> {
                     grid_swipe_refresh.isRefreshing = true
+                }
+                Status.LOADING_MORE -> {
+                    progress_loadmore.visibility = View.VISIBLE
                 }
             }
         })

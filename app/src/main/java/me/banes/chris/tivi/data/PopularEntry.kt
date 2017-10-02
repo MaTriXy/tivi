@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.data
@@ -32,7 +31,7 @@ import android.arch.persistence.room.PrimaryKey
                         onUpdate = ForeignKey.CASCADE,
                         onDelete = ForeignKey.CASCADE)))
 data class PopularEntry(
-        @PrimaryKey var id: Long? = null,
-        @ColumnInfo(name = "show_id") var showId: Long? = null,
-        @ColumnInfo(name = "page") var page: Int? = null,
-        @ColumnInfo(name = "page_order") var pageOrder: Int? = null)
+        @PrimaryKey(autoGenerate = true) val id: Long? = null,
+        @ColumnInfo(name = "show_id") val showId: Long,
+        @ColumnInfo(name = "page") val page: Int,
+        @ColumnInfo(name = "page_order") val pageOrder: Int)

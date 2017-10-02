@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.settings
@@ -20,7 +19,7 @@ package me.banes.chris.tivi.settings
 import android.os.Bundle
 import me.banes.chris.tivi.TiviActivity
 
-class SettingsActivity: TiviActivity() {
+class SettingsActivity : TiviActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.data
@@ -26,10 +25,11 @@ import android.arch.persistence.room.TypeConverters
         TrendingEntry::class,
         PopularEntry::class,
         TraktUser::class),
-        version = 2)
+        version = 3)
 @TypeConverters(TiviTypeConverters::class)
 abstract class TiviDatabase : RoomDatabase() {
     abstract fun showDao(): TiviShowDao
-
+    abstract fun trendingDao(): TrendingDao
+    abstract fun popularDao(): PopularDao
     abstract fun userDao(): UserDao
 }

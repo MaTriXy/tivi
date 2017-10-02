@@ -12,8 +12,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
+package me.banes.chris.tivi.extensions
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -28,7 +29,7 @@ import com.bumptech.glide.request.transition.Transition
 fun View.doOnLayout(onLayout: (View) -> Boolean) {
     addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
         override fun onLayoutChange(view: View, left: Int, top: Int, right: Int, bottom: Int,
-                                    oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
+                oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
             if (onLayout(view)) {
                 view.removeOnLayoutChangeListener(this)
             }
@@ -37,10 +38,10 @@ fun View.doOnLayout(onLayout: (View) -> Boolean) {
 }
 
 fun View.updatePadding(paddingStart: Int = getPaddingStart(),
-                       paddingTop: Int = getPaddingTop(),
-                       paddingEnd: Int = getPaddingEnd(),
-                       paddingBottom: Int = getPaddingBottom()) {
-    setPaddingRelative(getPaddingStart(), getPaddingTop(), getPaddingEnd(), getPaddingBottom())
+        paddingTop: Int = getPaddingTop(),
+        paddingEnd: Int = getPaddingEnd(),
+        paddingBottom: Int = getPaddingBottom()) {
+    setPaddingRelative(paddingStart, paddingTop, paddingEnd, paddingBottom)
 }
 
 fun ImageView.loadFromUrl(imageUrl: String) {

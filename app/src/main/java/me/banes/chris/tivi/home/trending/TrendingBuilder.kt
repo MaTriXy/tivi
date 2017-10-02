@@ -12,18 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package me.banes.chris.tivi.home
+package me.banes.chris.tivi.home.trending
 
 import android.arch.lifecycle.ViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
-import me.banes.chris.tivi.home.trending.TrendingShowsFragment
-import me.banes.chris.tivi.home.trending.TrendingShowsViewModel
 import me.banes.chris.tivi.inject.ViewModelKey
 
 @Module

@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.home
@@ -30,10 +29,11 @@ import me.banes.chris.tivi.Constants
 import me.banes.chris.tivi.R
 import me.banes.chris.tivi.TiviActivity
 import me.banes.chris.tivi.data.TiviShow
-import me.banes.chris.tivi.home.HomeActivityViewModel.NavigationItem.*
+import me.banes.chris.tivi.home.HomeActivityViewModel.NavigationItem.DISCOVER
+import me.banes.chris.tivi.home.HomeActivityViewModel.NavigationItem.LIBRARY
 import me.banes.chris.tivi.home.discover.DiscoverFragment
 import me.banes.chris.tivi.home.library.LibraryFragment
-import me.banes.chris.tivi.home.trending.PopularShowsFragment
+import me.banes.chris.tivi.home.popular.PopularShowsFragment
 import me.banes.chris.tivi.home.trending.TrendingShowsFragment
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationResponse
@@ -63,7 +63,11 @@ class HomeActivity : TiviActivity() {
                             supportFragmentManager.popBackStackImmediate()
                         }
                     } else {
-                        // TODO scroll to top of main fragment
+                        val fragment = supportFragmentManager.findFragmentById(R.id.home_content)
+                        when (fragment) {
+                            is DiscoverFragment -> fragment.scrollToTop()
+                            is LibraryFragment -> fragment.scrollToTop()
+                        }
                     }
                     true
                 }

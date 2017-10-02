@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.calls
@@ -26,18 +25,20 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 import me.banes.chris.tivi.data.TraktUser
 import me.banes.chris.tivi.data.UserDao
+import me.banes.chris.tivi.extensions.toRxSingle
 import me.banes.chris.tivi.util.AppRxSchedulers
 import me.banes.chris.tivi.util.DatabaseTxRunner
 import javax.inject.Inject
 
-class UserMeCall @Inject constructor(dbTxRunner: DatabaseTxRunner,
-                                     dao: UserDao,
-                                     trakt: TraktV2,
-                                     schedulers: AppRxSchedulers)
+class UserMeCall @Inject constructor(
+        dbTxRunner: DatabaseTxRunner,
+        dao: UserDao,
+        trakt: TraktV2,
+        schedulers: AppRxSchedulers)
     : TraktCall<User, TraktUser, UserDao>(dbTxRunner, dao, trakt, schedulers) {
 
     override fun networkCall(): Single<User> {
-        return Single.fromCallable { trakt.users().profile(UserSlug.ME, Extended.FULL).execute().body() }
+        return trakt.users().profile(UserSlug.ME, Extended.FULL).toRxSingle()
     }
 
     override fun createDatabaseObservable(): Flowable<TraktUser> {
@@ -46,15 +47,15 @@ class UserMeCall @Inject constructor(dbTxRunner: DatabaseTxRunner,
     }
 
     override fun mapToOutput(input: User): Maybe<TraktUser> {
-        return Maybe.fromCallable { input }
+        return Maybe.just(input)
                 .map { networkUser ->
-                    TraktUser().apply {
-                        username = networkUser.username
-                        name = networkUser.name
-                        location = networkUser.location
-                        about = networkUser.about
-                        avatarUrl = networkUser.images?.avatar?.full
-                    }
+                    TraktUser(
+                            username = networkUser.username,
+                            name = networkUser.name,
+                            location = networkUser.location,
+                            about = networkUser.about,
+                            avatarUrl = networkUser.images?.avatar?.full
+                    )
                 }
     }
 

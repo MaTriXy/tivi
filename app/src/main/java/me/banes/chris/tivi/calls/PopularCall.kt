@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.calls
@@ -24,9 +23,11 @@ import com.uwetrottmann.trakt5.enums.Extended
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import me.banes.chris.tivi.data.PopularDao
 import me.banes.chris.tivi.data.PopularEntry
 import me.banes.chris.tivi.data.TiviShow
 import me.banes.chris.tivi.data.TiviShowDao
+import me.banes.chris.tivi.extensions.toRxSingle
 import me.banes.chris.tivi.util.AppRxSchedulers
 import me.banes.chris.tivi.util.DatabaseTxRunner
 import javax.inject.Inject
@@ -34,20 +35,18 @@ import javax.inject.Inject
 class PopularCall @Inject constructor(
         databaseTxRunner: DatabaseTxRunner,
         showDao: TiviShowDao,
+        val popularDao: PopularDao,
         tmdb: Tmdb,
         trakt: TraktV2,
         schedulers: AppRxSchedulers)
     : PaginatedTraktCall<Show>(databaseTxRunner, showDao, tmdb, trakt, schedulers) {
 
     override fun networkCall(page: Int): Single<List<Show>> {
-        return Single.fromCallable {
-            trakt.shows().popular(
-                    page + 1, // Trakt uses a 1 based index
-                    DEFAULT_PAGE_SIZE,
-                    Extended.NOSEASONS)
-                    .execute()
-                    .body()
-        }
+        return trakt.shows().popular(
+                page + 1, // Trakt uses a 1 based index
+                DEFAULT_PAGE_SIZE,
+                Extended.NOSEASONS)
+                .toRxSingle()
     }
 
     override fun filterResponse(response: Show): Boolean {
@@ -55,24 +54,25 @@ class PopularCall @Inject constructor(
     }
 
     override fun lastPageLoaded(): Single<Int> {
-        return showDao.getLastPopularPage()
+        return popularDao.getLastPopularPage()
     }
 
     override fun createData(page: Int?): Flowable<List<TiviShow>> {
-        return if (page == null) showDao.popularShows() else showDao.popularShowsPage(page)
+        return if (page == null) popularDao.popularShows() else popularDao.popularShowsPage(page)
     }
 
     override fun saveEntry(show: TiviShow, page: Int, order: Int) {
-        val entry = PopularEntry(showId = show.id, page = page, pageOrder = order)
-        showDao.insertPopularShows(entry)
+        assert(show.id != null)
+        val entry = PopularEntry(showId = show.id!!, page = page, pageOrder = order)
+        popularDao.insertPopularShows(entry)
     }
 
     override fun deleteEntries() {
-        showDao.deletePopularShows()
+        popularDao.deletePopularShows()
     }
 
     override fun deletePage(page: Int) {
-        showDao.deletePopularShowsPageSync(page)
+        popularDao.deletePopularShowsPageSync(page)
     }
 
     override fun loadShow(response: Show): Maybe<TiviShow> {

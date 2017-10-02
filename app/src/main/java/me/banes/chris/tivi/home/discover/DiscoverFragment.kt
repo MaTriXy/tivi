@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.home.discover
@@ -35,7 +34,8 @@ import kotlinx.android.synthetic.main.header_item.view.*
 import me.banes.chris.tivi.R
 import me.banes.chris.tivi.data.TiviShow
 import me.banes.chris.tivi.home.HomeFragment
-import me.banes.chris.tivi.home.discover.DiscoverViewModel.Section.*
+import me.banes.chris.tivi.home.discover.DiscoverViewModel.Section.POPULAR
+import me.banes.chris.tivi.home.discover.DiscoverViewModel.Section.TRENDING
 import me.banes.chris.tivi.ui.SpacingItemDecorator
 import me.banes.chris.tivi.ui.groupieitems.ShowPosterItem
 import me.banes.chris.tivi.ui.groupieitems.ShowPosterUpdatingSection
@@ -125,6 +125,13 @@ internal class DiscoverFragment : HomeFragment<DiscoverViewModel>() {
     private fun titleFromSection(section: DiscoverViewModel.Section) = when (section) {
         POPULAR -> getString(R.string.discover_popular)
         TRENDING -> getString(R.string.discover_trending)
+    }
+
+    internal fun scrollToTop() {
+        discover_rv.apply {
+            stopScroll()
+            smoothScrollToPosition(0)
+        }
     }
 
     internal inner class HeaderItem(val section: DiscoverViewModel.Section) : Item<ViewHolder>() {

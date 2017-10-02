@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.calls
@@ -52,7 +51,7 @@ abstract class TraktCall<Input, Output, out DaoType>(
 
     protected abstract fun networkCall(): Single<Input>
 
-    open protected fun filterResponse(response: Input): Boolean {
+    protected open fun filterResponse(response: Input): Boolean {
         return true
     }
 

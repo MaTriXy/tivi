@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package me.banes.chris.tivi.calls
@@ -26,7 +25,9 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 import me.banes.chris.tivi.data.TiviShow
 import me.banes.chris.tivi.data.TiviShowDao
+import me.banes.chris.tivi.data.TrendingDao
 import me.banes.chris.tivi.data.TrendingEntry
+import me.banes.chris.tivi.extensions.toRxSingle
 import me.banes.chris.tivi.util.AppRxSchedulers
 import me.banes.chris.tivi.util.DatabaseTxRunner
 import javax.inject.Inject
@@ -34,19 +35,20 @@ import javax.inject.Inject
 class TrendingCall @Inject constructor(
         databaseTxRunner: DatabaseTxRunner,
         showDao: TiviShowDao,
+        private val trendingDao: TrendingDao,
         tmdb: Tmdb,
         trakt: TraktV2,
         schedulers: AppRxSchedulers)
     : PaginatedTraktCall<TrendingShow>(databaseTxRunner, showDao, tmdb, trakt, schedulers) {
 
     override fun createData(page: Int?): Flowable<List<TiviShow>> {
-        return if (page == null) showDao.trendingShows() else showDao.trendingShowsPage(page)
+        return if (page == null) trendingDao.trendingShows() else trendingDao.trendingShowsPage(page)
     }
 
     override fun networkCall(page: Int): Single<List<TrendingShow>> {
-        return Single.fromCallable {
-            trakt.shows().trending(page + 1, DEFAULT_PAGE_SIZE, Extended.NOSEASONS).execute().body()
-        }
+        return trakt.shows()
+                .trending(page + 1, DEFAULT_PAGE_SIZE, Extended.NOSEASONS)
+                .toRxSingle()
     }
 
     override fun filterResponse(response: TrendingShow): Boolean {
@@ -58,20 +60,21 @@ class TrendingCall @Inject constructor(
     }
 
     override fun lastPageLoaded(): Single<Int> {
-        return showDao.getLastTrendingPage()
+        return trendingDao.getLastTrendingPage()
     }
 
     override fun deleteEntries() {
-        showDao.deleteTrendingShows()
+        trendingDao.deleteTrendingShows()
     }
 
     override fun deletePage(page: Int) {
-        showDao.deleteTrendingShowsPageSync(page)
+        trendingDao.deleteTrendingShowsPageSync(page)
     }
 
     override fun saveEntry(show: TiviShow, page: Int, order: Int) {
-        val entry = TrendingEntry(showId = show.id, page = page, pageOrder = order)
-        entry.id = showDao.insertTrending(entry)
+        assert(show.id != null)
+        val entry = TrendingEntry(showId = show.id!!, page = page, pageOrder = order)
+        trendingDao.insertTrending(entry)
     }
 
 }
