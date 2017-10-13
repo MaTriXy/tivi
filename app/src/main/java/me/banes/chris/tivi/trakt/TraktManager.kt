@@ -24,7 +24,7 @@ import io.reactivex.Maybe
 import io.reactivex.subjects.BehaviorSubject
 import me.banes.chris.tivi.AppNavigator
 import me.banes.chris.tivi.calls.UserMeCall
-import me.banes.chris.tivi.data.TraktUser
+import me.banes.chris.tivi.data.entities.TraktUser
 import me.banes.chris.tivi.extensions.edit
 import me.banes.chris.tivi.util.AppRxSchedulers
 import net.openid.appauth.AuthState
@@ -33,6 +33,7 @@ import net.openid.appauth.AuthorizationRequest
 import net.openid.appauth.AuthorizationResponse
 import net.openid.appauth.AuthorizationService
 import net.openid.appauth.ClientAuthentication
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Provider
@@ -64,7 +65,7 @@ class TraktManager @Inject constructor(
 
                     if (it.isAuthorized) {
                         // Now refresh the user information
-                        userMeCall.refresh().subscribe()
+                        userMeCall.refresh(Unit)
                     }
                 }
 
@@ -86,11 +87,11 @@ class TraktManager @Inject constructor(
     }
 
     fun onAuthException(exception: AuthorizationException) {
-        // TODO
+        Timber.d("AuthException", exception)
     }
 
     fun userObservable(): Flowable<TraktUser> {
-        return userMeCall.observable()
+        return userMeCall.data()
     }
 
     private fun performTokenExchange(response: AuthorizationResponse) {
