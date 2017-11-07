@@ -25,17 +25,18 @@ import me.banes.chris.tivi.home.discover.DiscoverBuilder
 import me.banes.chris.tivi.home.library.LibraryBuilder
 import me.banes.chris.tivi.home.popular.PopularBuilder
 import me.banes.chris.tivi.home.trending.TrendingBuilder
+import me.banes.chris.tivi.home.watched.WatchedShowsBuilder
 import me.banes.chris.tivi.inject.ViewModelKey
 
 @Module
 internal abstract class HomeBuilder {
 
     @ContributesAndroidInjector(modules = arrayOf(
-            HomeModule::class,
             DiscoverBuilder::class,
             TrendingBuilder::class,
             PopularBuilder::class,
-            LibraryBuilder::class))
+            LibraryBuilder::class,
+            WatchedShowsBuilder::class))
     internal abstract fun homeActivity(): HomeActivity
 
     @Binds

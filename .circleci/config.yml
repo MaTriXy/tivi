@@ -14,7 +14,7 @@ update_sdk: &update_sdk
     mkdir "$ANDROID_HOME/licenses" || true
     echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > "$ANDROID_HOME/licenses/android-sdk-license"
     echo "84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license"
-    echo y | android update sdk --no-ui --all --filter "platform-tools"
+    sdkmanager "platform-tools" "platforms;android-27"
 
 jobs:
   build:
@@ -29,11 +29,14 @@ jobs:
           name: Download Dependencies
           command: ./gradlew dependencies --no-daemon
       - run:
-          name: Decrypt release signing key
-          command: openssl aes-256-cbc -d -in signing/app-release.aes -out signing/app-release.jks -k $ENCRYPT_KEY
+          name: Decrypt secrets
+          command: signing/setup.sh $ENCRYPT_KEY
       - run:
-          name: Assemble APKs
-          command: ./gradlew check --no-daemon
+          name: Check and assemble APKs
+          command: ./gradlew clean check dependencyUpdates --no-daemon
+      - run:
+          name: Cleanup secrets
+          command: signing/cleanup.sh
       - save_cache:
           paths:
             - ~/.gradle
@@ -44,6 +47,9 @@ jobs:
       - store_artifacts:
           path: app/build/reports
           destination: reports
+      - store_artifacts:
+          path: build/dependencyUpdates
+          destination: dependencyUpdates
       - store_test_results:
           path: app/build/test-results
       - persist_to_workspace:
@@ -63,14 +69,14 @@ jobs:
       - attach_workspace:
           at: ~/tivi
       - run:
-          name: Decrypt release signing key
-          command: openssl aes-256-cbc -d -in signing/app-release.aes -out signing/app-release.jks -k $ENCRYPT_KEY
-      - run:
-          name: Decrypt Play Store Secret
-          command: openssl aes-256-cbc -d -in signing/play-account.aes -out signing/play-account.p12 -k $ENCRYPT_KEY
+          name: Decrypt secrets
+          command: signing/setup.sh $ENCRYPT_KEY
       - run:
           name: Deploy to Alpha channel
-          command: ./gradlew publishApkRelease --no-daemon
+          command: ./gradlew publishRelease --no-daemon
+      - run:
+          name: Cleanup secrets
+          command: signing/cleanup.sh
 
 workflows:
   version: 2

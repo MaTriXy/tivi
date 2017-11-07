@@ -16,28 +16,18 @@
 
 package me.banes.chris.tivi
 
-import com.squareup.leakcanary.LeakCanary
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
+import me.banes.chris.tivi.appmanagers.AppManagers
 import me.banes.chris.tivi.inject.DaggerAppComponent
-import timber.log.Timber
+import javax.inject.Inject
 
 class TiviApplication : DaggerApplication() {
+    @Inject lateinit var managers: AppManagers
 
     override fun onCreate() {
         super.onCreate()
-
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            // This process is dedicated to LeakCanary for heap analysis.
-            // You should not init your app in this process.
-            return
-        }
-
-        LeakCanary.install(this)
-
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        }
+        managers.init(this)
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {

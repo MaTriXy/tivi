@@ -17,20 +17,31 @@
 package me.banes.chris.tivi.home
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.ViewModel
+import me.banes.chris.tivi.data.daos.TiviShowDao
+import me.banes.chris.tivi.data.entities.TiviShow
+import me.banes.chris.tivi.extensions.plusAssign
+import me.banes.chris.tivi.tmdb.TmdbShowFetcher
 import me.banes.chris.tivi.trakt.TraktManager
+import me.banes.chris.tivi.util.AppRxSchedulers
+import me.banes.chris.tivi.util.RxAwareViewModel
+import me.banes.chris.tivi.util.SingleLiveEvent
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationResponse
+import timber.log.Timber
 import javax.inject.Inject
 
-internal class HomeActivityViewModel @Inject constructor(private val traktManager: TraktManager) : ViewModel() {
+internal class HomeActivityViewModel @Inject constructor(
+        private val traktManager: TraktManager,
+        private val tiviShowDao: TiviShowDao,
+        private val tmdbShowFetcher: TmdbShowFetcher,
+        private val schedulers: AppRxSchedulers
+) : RxAwareViewModel() {
 
     enum class NavigationItem {
         DISCOVER, LIBRARY
     }
 
-    private val mutableNavLiveData = MutableLiveData<NavigationItem>()
+    private val mutableNavLiveData = SingleLiveEvent<NavigationItem>()
 
     /**
      * Facade so that we don't leak the fact that its mutable
@@ -41,6 +52,8 @@ internal class HomeActivityViewModel @Inject constructor(private val traktManage
     init {
         // Set default value
         mutableNavLiveData.value = NavigationItem.DISCOVER
+
+        setupTiviShowTmdbUpdater()
     }
 
     fun onNavigationItemClicked(item: NavigationItem) {
@@ -52,5 +65,28 @@ internal class HomeActivityViewModel @Inject constructor(private val traktManage
             ex != null -> traktManager.onAuthException(ex)
             response != null -> traktManager.onAuthResponse(response)
         }
+    }
+
+    /**
+     * This shouldn't really live here, but its a convenient place for now
+     */
+    private fun setupTiviShowTmdbUpdater() {
+        disposables += tiviShowDao.getShowsWhichNeedTmdbUpdate()
+                .subscribeOn(schedulers.database)
+                .subscribe({
+                    it.filter(tmdbShowFetcher::startUpdate).forEach(this::refreshShowFromTmdb)
+                }, {
+                    Timber.e(it, "Error while refreshing shows from TVDb")
+                })
+    }
+
+    private fun refreshShowFromTmdb(show: TiviShow) {
+        Timber.d("Updating show from TMDb: %s", show)
+        disposables += tmdbShowFetcher.updateShow(show.tmdbId!!)
+                .subscribe({
+                    Timber.d("Updated show from TMDb %s", show)
+                }, {
+                    Timber.e(it, "Error while refreshing show from TMDb", show)
+                })
     }
 }

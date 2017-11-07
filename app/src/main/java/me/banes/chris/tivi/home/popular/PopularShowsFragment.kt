@@ -16,15 +16,24 @@
 
 package me.banes.chris.tivi.home.popular
 
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.view.View
 import kotlinx.android.synthetic.main.fragment_rv_grid.*
 import me.banes.chris.tivi.R
-import me.banes.chris.tivi.data.entities.PopularEntry
+import me.banes.chris.tivi.data.entities.PopularListItem
+import me.banes.chris.tivi.home.HomeNavigator
+import me.banes.chris.tivi.home.HomeNavigatorViewModel
 import me.banes.chris.tivi.util.EntryGridFragment
 
-class PopularShowsFragment
-    : EntryGridFragment<PopularEntry, PopularShowsViewModel>(PopularShowsViewModel::class.java) {
+class PopularShowsFragment : EntryGridFragment<PopularListItem, PopularShowsViewModel>(PopularShowsViewModel::class.java) {
+
+    private lateinit var homeNavigator: HomeNavigator
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        homeNavigator = ViewModelProviders.of(activity!!, viewModelFactory).get(HomeNavigatorViewModel::class.java)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -32,7 +41,7 @@ class PopularShowsFragment
         toolbar.apply {
             title = getString(R.string.discover_popular)
             setNavigationOnClickListener {
-                viewModel.onUpClicked()
+                viewModel.onUpClicked(homeNavigator)
             }
         }
     }

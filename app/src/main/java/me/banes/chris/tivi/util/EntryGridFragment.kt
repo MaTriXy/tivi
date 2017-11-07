@@ -17,11 +17,11 @@
 package me.banes.chris.tivi.util
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -31,20 +31,28 @@ import me.banes.chris.tivi.R
 import me.banes.chris.tivi.TiviFragment
 import me.banes.chris.tivi.api.Status
 import me.banes.chris.tivi.data.Entry
+import me.banes.chris.tivi.data.entities.ListItem
+import me.banes.chris.tivi.extensions.observeK
 import me.banes.chris.tivi.ui.EndlessRecyclerViewScrollListener
+import me.banes.chris.tivi.ui.ShowPosterGridAdapter
 import me.banes.chris.tivi.ui.SpacingItemDecorator
-import me.banes.chris.tivi.ui.TiviShowGridAdapter
 import javax.inject.Inject
 
 @SuppressLint("ValidFragment")
-abstract class EntryGridFragment<EC : Entry, VM : EntryViewModel<EC>>(
-        private val vmClass: Class<VM>?) : TiviFragment() {
+abstract class EntryGridFragment<LI : ListItem<out Entry>, VM : EntryViewModel<LI>>(
+        private val vmClass: Class<VM>
+) : TiviFragment() {
 
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
 
     protected lateinit var viewModel: VM
 
-    private val adapter = TiviShowGridAdapter()
+    private lateinit var adapter: ShowPosterGridAdapter<LI>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(vmClass)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_rv_grid, container, false)
@@ -53,49 +61,54 @@ abstract class EntryGridFragment<EC : Entry, VM : EntryViewModel<EC>>(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val layoutManager = grid_recyclerview.layoutManager as GridLayoutManager
+        adapter = createAdapter(layoutManager.spanCount)
+
+        layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return adapter.getItemColumnSpan(position)
+            }
+        }
+
         grid_recyclerview.apply {
             adapter = this@EntryGridFragment.adapter
             addItemDecoration(SpacingItemDecorator(paddingLeft))
-            addOnScrollListener(EndlessRecyclerViewScrollListener(
-                    grid_recyclerview.layoutManager, { _: Int, _: RecyclerView ->
-                if (userVisibleHint) viewModel.onListScrolledToEnd()
+            addOnScrollListener(EndlessRecyclerViewScrollListener(layoutManager, { _: Int, _: RecyclerView ->
+                if (userVisibleHint) {
+                    viewModel.onListScrolledToEnd()
+                }
             }))
         }
 
-        grid_swipe_refresh.setOnRefreshListener { viewModel.fullRefresh() }
+        grid_swipe_refresh.setOnRefreshListener(viewModel::fullRefresh)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(vmClass)
-    }
+    open fun createAdapter(spanCount: Int): ShowPosterGridAdapter<LI> = ShowPosterGridAdapter(spanCount)
 
     override fun onStart() {
         super.onStart()
 
-        viewModel.data.observe(this, Observer {
-            it.let { adapter.updateItems(it!!.map { it.show!! }) }
-        })
+        viewModel.liveList.observeK(this, adapter::setList)
 
-        viewModel.messages.observe(this, Observer {
+        viewModel.messages.observeK(this) {
             when (it?.status) {
                 Status.SUCCESS -> {
                     grid_swipe_refresh.isRefreshing = false
-                    progress_loadmore.visibility = View.GONE
+                    adapter.isLoading = false
                 }
                 Status.ERROR -> {
                     grid_swipe_refresh.isRefreshing = false
-                    progress_loadmore.visibility = View.GONE
+                    adapter.isLoading = false
                     Snackbar.make(grid_recyclerview, it.message ?: "EMPTY", Snackbar.LENGTH_SHORT).show()
                 }
                 Status.REFRESHING -> {
                     grid_swipe_refresh.isRefreshing = true
                 }
                 Status.LOADING_MORE -> {
-                    progress_loadmore.visibility = View.VISIBLE
+                    adapter.isLoading = true
                 }
             }
-        })
+        }
     }
 
 }

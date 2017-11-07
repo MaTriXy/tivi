@@ -16,25 +16,46 @@
 
 package me.banes.chris.tivi.home.trending
 
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.view.View
 import kotlinx.android.synthetic.main.fragment_rv_grid.*
 import me.banes.chris.tivi.R
-import me.banes.chris.tivi.data.entities.TrendingEntry
+import me.banes.chris.tivi.data.entities.TrendingListItem
+import me.banes.chris.tivi.home.HomeNavigator
+import me.banes.chris.tivi.home.HomeNavigatorViewModel
+import me.banes.chris.tivi.ui.ShowPosterGridAdapter
 import me.banes.chris.tivi.util.EntryGridFragment
 
-class TrendingShowsFragment
-    : EntryGridFragment<TrendingEntry, TrendingShowsViewModel>(TrendingShowsViewModel::class.java) {
+class TrendingShowsFragment : EntryGridFragment<TrendingListItem, TrendingShowsViewModel>(TrendingShowsViewModel::class.java) {
+
+    private lateinit var homeNavigator: HomeNavigator
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        homeNavigator = ViewModelProviders.of(activity!!, viewModelFactory).get(HomeNavigatorViewModel::class.java)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         toolbar.apply {
-            title = getString(R.string.discover_popular)
+            title = getString(R.string.discover_trending)
             setNavigationOnClickListener {
-                viewModel.onUpClicked()
+                viewModel.onUpClicked(homeNavigator)
             }
         }
     }
 
+    override fun createAdapter(spanCount: Int): ShowPosterGridAdapter<TrendingListItem> {
+        val placeholderIcon = context?.getDrawable(R.drawable.ic_eye_12dp)
+        return ShowPosterGridAdapter(spanCount) { item, holder ->
+            val show = item.show
+            val entry = item.entry
+            holder.bindShow(show?.tmdbPosterPath,
+                    show?.title,
+                    entry?.watchers.toString(),
+                    placeholderIcon?.mutate())
+        }
+    }
 }
