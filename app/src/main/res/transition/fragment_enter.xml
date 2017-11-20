@@ -15,7 +15,6 @@
   ~ limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <corners android:bottomLeftRadius="3dp" />
-    <solid android:color="@color/annotation_bg_color" />
-</shape>
+<fade xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="220"
+    android:interpolator="@android:interpolator/linear" />

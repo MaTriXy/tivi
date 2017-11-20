@@ -31,15 +31,15 @@ class TrendingShowsFragment : EntryGridFragment<TrendingListItem, TrendingShowsV
 
     private lateinit var homeNavigator: HomeNavigator
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         homeNavigator = ViewModelProviders.of(activity!!, viewModelFactory).get(HomeNavigatorViewModel::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        toolbar.apply {
+        grid_toolbar.apply {
             title = getString(R.string.discover_trending)
             setNavigationOnClickListener {
                 viewModel.onUpClicked(homeNavigator)
@@ -50,10 +50,11 @@ class TrendingShowsFragment : EntryGridFragment<TrendingListItem, TrendingShowsV
     override fun createAdapter(spanCount: Int): ShowPosterGridAdapter<TrendingListItem> {
         val placeholderIcon = context?.getDrawable(R.drawable.ic_eye_12dp)
         return ShowPosterGridAdapter(spanCount) { item, holder ->
-            val show = item.show
+            val show = item.show!!
             val entry = item.entry
-            holder.bindShow(show?.tmdbPosterPath,
-                    show?.title,
+            holder.bindShow(show.tmdbPosterPath,
+                    show.title,
+                    show.homepage,
                     entry?.watchers.toString(),
                     placeholderIcon?.mutate())
         }

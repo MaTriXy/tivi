@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package me.banes.chris.tivi.home
+package me.banes.chris.tivi.ui.groupieitems
 
-import me.banes.chris.tivi.data.entities.TiviShow
-import me.banes.chris.tivi.ui.SharedElementHelper
+import com.xwray.groupie.Section
+import com.xwray.groupie.UpdatingGroup
+import me.banes.chris.tivi.data.entities.ListItem
+import me.banes.chris.tivi.data.entities.PopularEntry
 
-interface HomeNavigator {
-    fun showPopular(sharedElements: SharedElementHelper?)
-    fun showTrending(sharedElements: SharedElementHelper?)
-    fun showWatched(sharedElements: SharedElementHelper?)
-    fun showShowDetails(show: TiviShow)
-    fun onUpClicked()
+internal class PopularPosterSection(items: List<ListItem<PopularEntry>>) : Section() {
+    private val group = UpdatingGroup()
+
+    init {
+        add(group)
+        update(items)
+    }
+
+    fun update(items: List<ListItem<PopularEntry>>) {
+        group.update(items.map { PopularPosterItem(it.entry!!, it.show!!) })
+    }
 }

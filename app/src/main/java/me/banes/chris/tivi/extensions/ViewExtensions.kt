@@ -24,6 +24,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
@@ -36,6 +37,24 @@ fun View.doOnLayout(onLayout: (View) -> Boolean) {
             if (onLayout(view)) {
                 view.removeOnLayoutChangeListener(this)
             }
+        }
+    })
+}
+
+fun View.doWhenLaidOut(a: (View) -> Unit) {
+    if (isLaidOut) a(this)
+    else doOnLayout { view ->
+        a(view)
+        false
+    }
+}
+
+fun View.doOnPreDraw(l: (View) -> Unit) {
+    viewTreeObserver?.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        override fun onPreDraw(): Boolean {
+            viewTreeObserver?.removeOnPreDrawListener(this)
+            l(this@doOnPreDraw)
+            return true
         }
     })
 }
