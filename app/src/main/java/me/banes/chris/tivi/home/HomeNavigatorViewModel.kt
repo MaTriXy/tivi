@@ -18,11 +18,16 @@ package me.banes.chris.tivi.home
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.ViewModel
+import me.banes.chris.tivi.AppNavigator
+import me.banes.chris.tivi.SharedElementHelper
 import me.banes.chris.tivi.data.entities.TiviShow
-import me.banes.chris.tivi.ui.SharedElementHelper
 import me.banes.chris.tivi.util.SingleLiveEvent
+import javax.inject.Inject
+import javax.inject.Provider
 
-class HomeNavigatorViewModel : ViewModel(), HomeNavigator {
+class HomeNavigatorViewModel @Inject constructor(
+        private val appNavigatorProvider: Provider<AppNavigator>
+) : ViewModel(), HomeNavigator {
 
     override fun showPopular(sharedElements: SharedElementHelper?) {
         _showPopularCall.value = sharedElements
@@ -36,8 +41,10 @@ class HomeNavigatorViewModel : ViewModel(), HomeNavigator {
         _showWatchedCall.value = sharedElements
     }
 
-    override fun showShowDetails(show: TiviShow) {
-        _showShowDetailsCall.value = show
+    override fun showShowDetails(show: TiviShow, sharedElements: SharedElementHelper?) {
+        if (show.id != null) {
+            appNavigatorProvider.get().startShowDetails(show.id!!, sharedElements)
+        }
     }
 
     override fun onUpClicked() {
@@ -55,10 +62,6 @@ class HomeNavigatorViewModel : ViewModel(), HomeNavigator {
     private val _showWatchedCall = SingleLiveEvent<SharedElementHelper>()
     val showWatchedCall: LiveData<SharedElementHelper>
         get() = _showWatchedCall
-
-    private val _showShowDetailsCall = SingleLiveEvent<TiviShow>()
-    val showShowDetailsCall: LiveData<TiviShow>
-        get() = _showShowDetailsCall
 
     private val _upClickedCall = SingleLiveEvent<Unit>()
     val upClickedCall: LiveData<Unit>

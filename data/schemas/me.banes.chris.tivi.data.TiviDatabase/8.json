@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 8,
-    "identityHash": "aeb17f45fc1702e8000056ba8650ac45",
+    "identityHash": "bec56f39678da2cc9ed1b381dcf018dc",
     "entities": [
       {
         "tableName": "shows",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT, `original_title` TEXT, `trakt_id` INTEGER, `tmdb_id` INTEGER, `tmdb_poster_path` TEXT, `tmdb_backdrop_path` TEXT, `trakt_updated` TEXT, `tmdb_updated` TEXT, `overview` TEXT, `homepage` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT, `original_title` TEXT, `trakt_id` INTEGER, `tmdb_id` INTEGER, `tmdb_poster_path` TEXT, `tmdb_backdrop_path` TEXT, `trakt_updated` TEXT, `tmdb_updated` TEXT, `overview` TEXT, `homepage` TEXT, `rating` REAL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -72,6 +72,12 @@
             "fieldPath": "homepage",
             "columnName": "homepage",
             "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "rating",
+            "columnName": "rating",
+            "affinity": "REAL",
             "notNull": false
           }
         ],
@@ -331,7 +337,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"aeb17f45fc1702e8000056ba8650ac45\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"bec56f39678da2cc9ed1b381dcf018dc\")"
     ]
   }
 }

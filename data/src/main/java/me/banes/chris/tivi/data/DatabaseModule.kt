@@ -30,7 +30,6 @@ import javax.inject.Singleton
 
 @Module
 class DatabaseModule {
-
     @Singleton
     @Provides
     fun provideDatabase(context: Context): TiviDatabase {
@@ -43,34 +42,21 @@ class DatabaseModule {
     }
 
     @Provides
-    fun provideTiviShowDao(db: TiviDatabase): TiviShowDao {
-        return db.showDao()
-    }
+    fun provideTiviShowDao(db: TiviDatabase): TiviShowDao = db.showDao()
 
     @Provides
-    fun provideUserDao(db: TiviDatabase): UserDao {
-        return db.userDao()
-    }
+    fun provideUserDao(db: TiviDatabase): UserDao = db.userDao()
 
     @Provides
-    fun provideTrendingDao(db: TiviDatabase): TrendingDao {
-        return db.trendingDao()
-    }
+    fun provideTrendingDao(db: TiviDatabase): TrendingDao = db.trendingDao()
 
     @Provides
-    fun providePopularDao(db: TiviDatabase): PopularDao {
-        return db.popularDao()
-    }
+    fun providePopularDao(db: TiviDatabase): PopularDao = db.popularDao()
 
     @Provides
-    fun provideWatchedDao(db: TiviDatabase): WatchedDao {
-        return db.watchedDao()
-    }
+    fun provideWatchedDao(db: TiviDatabase): WatchedDao = db.watchedDao()
 
     @Singleton
     @Provides
-    fun provideDatabaseTransactionRunner(db: TiviDatabase): DatabaseTxRunner {
-        return DatabaseTxRunner(db)
-    }
-
+    fun provideDatabaseTransactionRunner(db: TiviDatabase): DatabaseTxRunner = DatabaseTxRunner(db)
 }

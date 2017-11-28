@@ -16,8 +16,14 @@
 
 package me.banes.chris.tivi
 
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
 import android.support.v7.app.AppCompatDelegate
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.core.CrashlyticsCore
 import dagger.android.support.DaggerAppCompatActivity
+import io.fabric.sdk.android.Fabric
 import me.banes.chris.tivi.settings.TiviPreferences
 import me.banes.chris.tivi.settings.TiviPreferences.UiTheme.DAY
 import me.banes.chris.tivi.settings.TiviPreferences.UiTheme.DAYNIGHT
@@ -31,6 +37,24 @@ abstract class TiviActivity : DaggerAppCompatActivity() {
 
     @Inject protected lateinit var preferences: TiviPreferences
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val crashlyticsCore = CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()
+        val crashlytics = Crashlytics.Builder().core(crashlyticsCore).build()
+        Fabric.with(this, crashlytics)
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
     override fun onStart() {
         super.onStart()
 
@@ -39,5 +63,19 @@ abstract class TiviActivity : DaggerAppCompatActivity() {
             NIGHT -> delegate.setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             DAYNIGHT -> delegate.setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO)
         }
+    }
+
+    open fun handleIntent(intent: Intent) {}
+
+    override fun finishAfterTransition() {
+        val resultData = Intent()
+        val result = onPopulateResultIntent(resultData)
+        setResult(result, resultData)
+
+        super.finishAfterTransition()
+    }
+
+    open fun onPopulateResultIntent(intent: Intent): Int {
+        return Activity.RESULT_OK
     }
 }

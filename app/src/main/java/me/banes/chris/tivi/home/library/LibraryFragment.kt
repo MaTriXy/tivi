@@ -27,6 +27,7 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.fragment_summary.*
 import me.banes.chris.tivi.R
+import me.banes.chris.tivi.SharedElementHelper
 import me.banes.chris.tivi.extensions.doOnPreDraw
 import me.banes.chris.tivi.extensions.observeK
 import me.banes.chris.tivi.home.HomeFragment
@@ -37,6 +38,7 @@ import me.banes.chris.tivi.ui.SpacingItemDecorator
 import me.banes.chris.tivi.ui.groupieitems.HeaderItem
 import me.banes.chris.tivi.ui.groupieitems.ShowPosterItem
 import me.banes.chris.tivi.ui.groupieitems.ShowPosterSection
+import me.banes.chris.tivi.util.GridToGridTransitioner
 
 class LibraryFragment : HomeFragment<LibraryViewModel>() {
 
@@ -51,6 +53,9 @@ class LibraryFragment : HomeFragment<LibraryViewModel>() {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(LibraryViewModel::class.java)
         homeNavigator = ViewModelProviders.of(activity!!, viewModelFactory).get(HomeNavigatorViewModel::class.java)
+
+        GridToGridTransitioner.setupFirstFragment(this,
+                intArrayOf(R.id.summary_appbarlayout, R.id.summary_status_scrim))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -61,6 +66,9 @@ class LibraryFragment : HomeFragment<LibraryViewModel>() {
         super.onActivityCreated(savedInstanceState)
 
         viewModel.data.observeK(this) {
+            if (it != null && !it.isEmpty() && groupAdapter.itemCount == 0) {
+                scheduleStartPostponedTransitions()
+            }
             it?.run {
                 sectionHelper.update(it.map { it.section to it.items }.toMap())
             }
@@ -90,10 +98,12 @@ class LibraryFragment : HomeFragment<LibraryViewModel>() {
             setOnItemClickListener { item, _ ->
                 when (item) {
                     is HeaderItem -> {
-                        viewModel.onSectionHeaderClicked(
-                                homeNavigator,
-                                item.tag as LibraryViewModel.Section,
-                                sectionHelper.getSharedElementHelperForSection(item.tag))
+                        val section = item.tag as LibraryViewModel.Section
+
+                        val sharedElements = SharedElementHelper()
+                        sectionHelper.addSharedElementsForSection(section, sharedElements)
+
+                        viewModel.onSectionHeaderClicked(homeNavigator, section, sharedElements)
                     }
                     is ShowPosterItem -> viewModel.onItemPostedClicked(homeNavigator, item.show)
                 }
@@ -113,6 +123,10 @@ class LibraryFragment : HomeFragment<LibraryViewModel>() {
                 onMenuItemClicked(it)
             }
         }
+    }
+
+    override fun canStartTransition(): Boolean {
+        return groupAdapter.itemCount > 0
     }
 
     override fun getMenu(): Menu? = summary_toolbar.menu
