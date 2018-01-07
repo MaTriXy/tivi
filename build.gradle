@@ -17,19 +17,20 @@
 
 buildscript {
     ext.versions = [
+            'android_gradle'   : '3.0.1',
             'support_library'  : '27.0.2',
             'constraint_layout': '1.1.0-beta4',
             'arch_comp'        : '1.0.0',
             'arch_comp_paging' : '1.0.0-alpha3',
             'kotlin'           : '1.2.10',
             'espresso'         : '3.0.1',
-            'dagger'           : '2.13',
-            'ktlint'           : '0.13.0',
+            'dagger'           : '2.14.1',
+            'ktlint'           : '0.14.0',
             'leakcanary'       : '1.5.4',
-            'rx'               : '2.1.7',
+            'rx'               : '2.1.8',
             'rxlint'           : '1.6',
-            'firebase'         : '11.6.2',
-            'epoxy'            : '2.7.3'
+            'firebase'         : '11.8.0',
+            'epoxy'            : '2.8.0'
     ]
 
     repositories {
@@ -39,7 +40,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath "com.android.tools.build:gradle:${versions.android_gradle}"
 
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:${versions.kotlin}"
@@ -55,7 +56,7 @@ buildscript {
 }
 
 plugins {
-    id "com.diffplug.gradle.spotless" version "3.6.0"
+    id "com.diffplug.gradle.spotless" version "3.8.0"
     id 'com.github.ben-manes.versions' version "0.17.0"
 }
 
@@ -82,10 +83,6 @@ subprojects {
             licenseHeaderFile project.rootProject.file('spotless/copyright.kt')
         }
     }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }
 
 String propOrDef(String propertyName, String defaultValue) {
