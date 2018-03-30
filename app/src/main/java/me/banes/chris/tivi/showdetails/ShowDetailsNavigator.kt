@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package me.banes.chris.tivi.appinitializers
+package me.banes.chris.tivi.showdetails
 
-import android.app.Application
-import com.squareup.leakcanary.LeakCanary
-import javax.inject.Inject
+import me.banes.chris.tivi.SharedElementHelper
+import me.banes.chris.tivi.data.entities.TiviShow
 
-class LeakCanaryInitializer @Inject constructor() : AppInitializer {
-    override fun init(application: Application) {
-        if (!LeakCanary.isInAnalyzerProcess(application)) {
-            LeakCanary.install(application)
-        }
-    }
+interface ShowDetailsNavigator {
+    fun showShowDetails(show: TiviShow, sharedElements: SharedElementHelper?)
 }

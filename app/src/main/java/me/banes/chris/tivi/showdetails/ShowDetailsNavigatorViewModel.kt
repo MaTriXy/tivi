@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-package me.banes.chris.tivi.jobs
+package me.banes.chris.tivi.showdetails
 
-import com.evernote.android.job.Job
-import com.evernote.android.job.JobCreator
+import android.arch.lifecycle.ViewModel
+import me.banes.chris.tivi.AppNavigator
+import me.banes.chris.tivi.SharedElementHelper
+import me.banes.chris.tivi.data.entities.TiviShow
 import javax.inject.Inject
 import javax.inject.Provider
 
-/**
- * JobCreator which uses Dagger to create the instances.
- */
-class TiviJobCreator @Inject constructor(
-    private val creators: @JvmSuppressWildcards Map<String, Provider<Job>>
-) : JobCreator {
-    override fun create(tag: String): Job {
-        val creator = creators[tag] ?: throw IllegalArgumentException("Unknown job tag: $tag")
-        try {
-            return creator.get()
-        } catch (e: Exception) {
-            throw RuntimeException(e)
+class ShowDetailsNavigatorViewModel @Inject constructor(
+    private val appNavigatorProvider: Provider<AppNavigator>
+) : ViewModel(), ShowDetailsNavigator {
+    override fun showShowDetails(show: TiviShow, sharedElements: SharedElementHelper?) {
+        if (show.id != null) {
+            appNavigatorProvider.get().startShowDetails(show.id!!, sharedElements)
         }
     }
 }

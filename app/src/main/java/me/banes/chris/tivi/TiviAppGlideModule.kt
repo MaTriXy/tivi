@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google, Inc.
+ * Copyright 2018 Google, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package me.banes.chris.tivi.details
+package me.banes.chris.tivi
 
-import dagger.Module
-import dagger.Provides
-import me.banes.chris.tivi.AppNavigator
-import me.banes.chris.tivi.TiviAppActivityNavigator
+import android.content.Context
+import com.bumptech.glide.GlideBuilder
+import com.bumptech.glide.annotation.GlideModule
+import com.bumptech.glide.load.DecodeFormat
+import com.bumptech.glide.module.AppGlideModule
+import com.bumptech.glide.request.RequestOptions
 
-@Module
-class ShowDetailsModule {
-    @Provides
-    fun provideAppNavigator(activity: ShowDetailsActivity): AppNavigator {
-        return TiviAppActivityNavigator(activity)
+@GlideModule
+class TiviAppGlideModule : AppGlideModule() {
+    override fun applyOptions(context: Context, builder: GlideBuilder) {
+        builder.setDefaultRequestOptions(
+                RequestOptions().format(DecodeFormat.PREFER_ARGB_8888)
+        )
     }
 }

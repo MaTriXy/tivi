@@ -47,7 +47,7 @@ class AddToMyShows @Inject constructor(
     override fun onRunJob(params: Params): Result {
         val showId = params.extras.getLong(PARAM_SHOW_ID, -1)
 
-        Timber.d("${RemoveFromMyShows.TAG} job running for id: $showId")
+        Timber.d("$TAG job running for id: $showId")
 
         Completable.fromCallable { myShowsDao.insert(MyShowsEntry(showId = showId)) }
                 .subscribeOn(rxSchedulers.database)

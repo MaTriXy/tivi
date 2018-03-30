@@ -27,9 +27,6 @@ kapt {
     correctErrorTypes = true
 }
 apply plugin: 'kotlin-android-extensions'
-androidExtensions {
-    experimental = true
-}
 
 apply plugin: 'com.getkeepsafe.dexcount'
 dexcount {
@@ -48,8 +45,6 @@ if (haveFabricApiKey) {
     apply plugin: 'io.fabric'
 }
 
-apply plugin: 'com.google.firebase.firebase-perf'
-
 android {
     compileSdkVersion 27
 
@@ -64,8 +59,8 @@ android {
         applicationId "me.banes.chris.tivi"
         minSdkVersion 23
         targetSdkVersion 27
-        versionCode 9
-        versionName "0.1.9"
+        versionCode 10
+        versionName "0.1.10"
 
         // For now we're sticking to just shipping APKs
         resConfigs "en"
@@ -110,6 +105,9 @@ android {
     lintOptions {
         // Disable lintVital. Not needed since lint is run on CI
         checkReleaseBuilds false
+
+        // Disable StringFormatMatches due to https://issuetracker.google.com/issues/76490033
+        disable 'StringFormatMatches'
     }
 
     dataBinding {
@@ -117,12 +115,6 @@ android {
     }
 
     buildTypes {
-        leakcanary {
-            signingConfig signingConfigs.debug
-            versionNameSuffix "-dev-nolc [${getGitHash()}]"
-            matchingFallbacks = ['debug', 'release']
-        }
-
         debug {
             signingConfig signingConfigs.debug
             versionNameSuffix "-dev [${getGitHash()}]"
@@ -145,9 +137,9 @@ dependencies {
     implementation project(":trakt")
     implementation project(":tmdb")
 
-    implementation "android.arch.lifecycle:extensions:${versions.arch}"
-    implementation "android.arch.lifecycle:reactivestreams:${versions.arch}"
-    kapt "android.arch.lifecycle:compiler:${versions.arch}"
+    implementation "android.arch.lifecycle:extensions:${versions.arch_lifecycle}"
+    implementation "android.arch.lifecycle:reactivestreams:${versions.arch_lifecycle}"
+    kapt "android.arch.lifecycle:compiler:${versions.arch_lifecycle}"
 
     implementation "android.arch.paging:runtime:${versions.arch_paging}"
 
@@ -160,8 +152,6 @@ dependencies {
 
     implementation "androidx.core:core-ktx:${versions.core_ktx}"
 
-    kapt "com.android.databinding:compiler:${versions.android_gradle}"
-
     implementation 'com.gabrielittner.threetenbp:lazythreetenbp:0.3.0'
 
     implementation "com.google.dagger:dagger-android:${versions.dagger}"
@@ -169,7 +159,8 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
     kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
 
-    implementation "com.github.bumptech.glide:glide:4.2.0"
+    implementation "com.github.bumptech.glide:glide:${versions.glide}"
+    kapt "com.github.bumptech.glide:compiler:${versions.glide}"
 
     implementation "com.airbnb.android:epoxy:${versions.epoxy}"
     //implementation "com.airbnb.android:epoxy-paging:${versions.epoxy}"
@@ -185,17 +176,11 @@ dependencies {
 
     debugImplementation "nl.littlerobots.rxlint:rxlint:${versions.rxlint}"
 
-    leakcanaryImplementation "com.squareup.leakcanary:leakcanary-android:${versions.leakcanary}"
-    debugImplementation "com.squareup.leakcanary:leakcanary-android-no-op:${versions.leakcanary}"
-    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:${versions.leakcanary}"
-
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {
         transitive = true
     }
 
-    implementation "com.google.firebase:firebase-perf:${versions.firebase}"
-
-    implementation 'com.evernote:android-job:1.2.4'
+    implementation 'com.evernote:android-job:1.2.5'
 }
 
 def getGitHash() {

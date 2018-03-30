@@ -16,22 +16,38 @@
 
 package me.banes.chris.tivi.actions
 
+import com.evernote.android.job.JobRequest
 import me.banes.chris.tivi.jobs.AddToMyShows
 import me.banes.chris.tivi.jobs.RemoveFromMyShows
-import javax.inject.Inject
-import javax.inject.Singleton
+import me.banes.chris.tivi.jobs.UpdateShowFromTMDb
+import me.banes.chris.tivi.jobs.UpdateShowFromTrakt
 
-@Singleton
-class TiviActions @Inject constructor() {
-    fun addShowToMyShows(showId: Long) {
+class TiviActionsImpl : TiviActions {
+    override fun addShowToMyShows(showId: Long) {
         AddToMyShows.buildRequest(showId)
                 .startNow()
                 .build()
                 .scheduleAsync()
     }
 
-    fun removeShowFromMyShows(showId: Long) {
+    override fun removeShowFromMyShows(showId: Long) {
         RemoveFromMyShows.buildRequest(showId)
+                .startNow()
+                .build()
+                .scheduleAsync()
+    }
+
+    override fun updateShowFromTMDb(tmdbId: Int) {
+        UpdateShowFromTMDb.buildRequest(tmdbId)
+                .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
+                .startNow()
+                .build()
+                .scheduleAsync()
+    }
+
+    override fun updateShowFromTrakt(traktId: Int) {
+        UpdateShowFromTrakt.buildRequest(traktId)
+                .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
                 .startNow()
                 .build()
                 .scheduleAsync()

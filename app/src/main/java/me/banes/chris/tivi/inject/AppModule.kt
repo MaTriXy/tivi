@@ -24,9 +24,10 @@ import dagger.Provides
 import me.banes.chris.tivi.AppNavigator
 import me.banes.chris.tivi.TiviAppNavigator
 import me.banes.chris.tivi.TiviApplication
+import me.banes.chris.tivi.actions.TiviActions
+import me.banes.chris.tivi.actions.TiviActionsImpl
 import me.banes.chris.tivi.appinitializers.AndroidJobInitializer
 import me.banes.chris.tivi.appinitializers.AppInitializers
-import me.banes.chris.tivi.appinitializers.LeakCanaryInitializer
 import me.banes.chris.tivi.appinitializers.ThreeTenBpInitializer
 import me.banes.chris.tivi.appinitializers.TimberInitializer
 import me.banes.chris.tivi.util.AppRxSchedulers
@@ -64,11 +65,10 @@ class AppModule {
     @Provides
     fun provideAppManagers(
         androidJobInitializer: AndroidJobInitializer,
-        leakCanaryManager: LeakCanaryInitializer,
         timberManager: TimberInitializer,
         threeTenManager: ThreeTenBpInitializer
     ): AppInitializers {
-        return AppInitializers(androidJobInitializer, leakCanaryManager, timberManager, threeTenManager)
+        return AppInitializers(androidJobInitializer, timberManager, threeTenManager)
     }
 
     @Provides
@@ -76,5 +76,11 @@ class AppModule {
     @Named("app")
     fun provideAppNavigator(context: Context): AppNavigator {
         return TiviAppNavigator(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTiviActions(): TiviActions {
+        return TiviActionsImpl()
     }
 }
