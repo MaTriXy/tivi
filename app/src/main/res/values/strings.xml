@@ -26,7 +26,7 @@
     <string name="discover_popular">Popular</string>
 
     <string name="library_title">Library</string>
-    <string name="library_myshows">My Shows</string>
+    <string name="library_followed_shows">Followed</string>
     <string name="library_watched">Watched</string>
 
     <string name="login">Login</string>
@@ -58,5 +58,26 @@
     <string name="genre_label_comedy">Comedy</string>
     <string name="genre_label_horror">Horror</string>
     <string name="genre_label_mystery">Mystery</string>
+
+    <string name="follow_show_add">Follow show</string>
+    <string name="follow_show_remove">Un-follow show</string>
+
+    <string name="episode_watches">Episode watches</string>
+
+    <string name="first_aired">First aired: %1$s</string>
+
+    <string name="season_summary_to_watch">%1$d to watch</string>
+    <string name="season_summary_to_air">%1$d to air</string>
+    <string name="season_summary_watched">%1$d watched</string>
+
+    <string name="popup_season_watch_now">Watch date: now</string>
+    <string name="popup_season_watch_air_date">Watch date: air date</string>
+
+    <string name="popup_season_mark_watched_all">Watch all</string>
+    <string name="popup_season_mark_watched_aired">Watch aired</string>
+    <string name="popup_season_mark_all_unwatched">Unwatch all</string>
+
+    <string name="show_details_seasons">Seasons</string>
+    <string name="view_privacy_policy">View Privacy Policy</string>
 
 </resources>

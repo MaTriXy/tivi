@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google, Inc.
+ * Copyright 2017 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,9 @@ kapt {
     correctErrorTypes = true
 }
 apply plugin: 'kotlin-android-extensions'
+androidExtensions {
+    experimental = true
+}
 
 apply plugin: 'com.getkeepsafe.dexcount'
 dexcount {
@@ -36,44 +39,46 @@ dexcount {
 
 apply plugin: 'com.github.triplet.play'
 play {
-    track = 'alpha'
-    uploadImages = true
+    track = 'internal'
+    defaultToAppBundles = true
 }
 
-def haveFabricApiKey = !propOrDef("TIVI_FABRIC_API_KEY", "").isEmpty()
-if (haveFabricApiKey) {
+if (file("google-services.json").exists()) {
+    apply plugin: 'com.google.gms.google-services'
     apply plugin: 'io.fabric'
 }
 
+def appVersionCode = propOrDef("tivi.versioncode", 17) as Integer
+println("APK version code: " + appVersionCode)
+
 android {
-    compileSdkVersion 27
+    compileSdkVersion buildConfig.compileSdk
 
     playAccountConfigs {
         defaultAccountConfig {
-            serviceAccountEmail = propOrDef('TIVI_PLAY_PUBLISHER_ACCOUNT', "")
-            pk12File = rootProject.file('signing/play-account.p12')
+            serviceAccountCredentials = rootProject.file('signing/play-account.json')
         }
     }
 
     defaultConfig {
-        applicationId "me.banes.chris.tivi"
-        minSdkVersion 23
-        targetSdkVersion 27
-        versionCode 10
-        versionName "0.1.10"
+        applicationId "app.tivi"
+        minSdkVersion buildConfig.minSdk
+        targetSdkVersion buildConfig.targetSdk
+        versionCode appVersionCode
+        versionName "0.2.18"
 
-        // For now we're sticking to just shipping APKs
+        // For now we're sticking to just shipping EN
         resConfigs "en"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         playAccountConfig = playAccountConfigs.defaultAccountConfig
 
-        manifestPlaceholders += ['appAuthRedirectScheme': 'me.banes.chris.tivi']
+        buildConfigField "String", "TRAKT_CLIENT_ID", "\"" + propOrDef("TIVI_TRAKT_CLIENT_ID", "") + "\""
+        buildConfigField "String", "TRAKT_CLIENT_SECRET", "\"" + propOrDef("TIVI_TRAKT_CLIENT_SECRET", "") + "\""
+        buildConfigField "String", "TMDB_API_KEY", "\"" + propOrDef("TIVI_TMDB_API_KEY", "") + "\""
 
-        // Crashlytics. Disabled by default
-        manifestPlaceholders += ["fabric-api-key": propOrDef("TIVI_FABRIC_API_KEY", "")]
-        ext.enableCrashlytics = false
+        manifestPlaceholders += ['appAuthRedirectScheme': 'app.tivi']
     }
 
     signingConfigs {
@@ -106,18 +111,29 @@ android {
         // Disable lintVital. Not needed since lint is run on CI
         checkReleaseBuilds false
 
-        // Disable StringFormatMatches due to https://issuetracker.google.com/issues/76490033
-        disable 'StringFormatMatches'
+        disable 'GradleCompatible', 'FontValidationError'
     }
 
     dataBinding {
         enabled = true
     }
 
+    packagingOptions {
+        // Exclude AndroidX version files
+        exclude 'META-INF/*.version'
+        // Exclude consumer proguard files
+        exclude 'META-INF/proguard/*'
+        // Exclude the Firebase/Fabric/other random properties files
+        exclude '/*.properties'
+        exclude 'fabric/*.properties'
+        exclude 'META-INF/*.properties'
+    }
+
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
             versionNameSuffix "-dev [${getGitHash()}]"
+            applicationIdSuffix ".debug"
         }
 
         release {
@@ -125,62 +141,94 @@ android {
             shrinkResources true
             minifyEnabled true
             proguardFiles 'proguard-rules.pro'
-
-            // Enable crashlytics
-            ext.enableCrashlytics = haveFabricApiKey
         }
+    }
+
+    configurations.all {
+        resolutionStrategy.force "com.android.tools.build.jetifier:jetifier-core:1.0.0-beta02"
     }
 }
 
 dependencies {
+    implementation project(":base")
+    implementation project(":base-android")
     implementation project(":data")
+    implementation project(":data-android")
     implementation project(":trakt")
+    implementation project(":trakt-auth")
     implementation project(":tmdb")
+    implementation project(':interactors')
+    implementation project(":tasks")
 
-    implementation "android.arch.lifecycle:extensions:${versions.arch_lifecycle}"
-    implementation "android.arch.lifecycle:reactivestreams:${versions.arch_lifecycle}"
-    kapt "android.arch.lifecycle:compiler:${versions.arch_lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-extensions:${versions.androidx.lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-reactivestreams:${versions.androidx.lifecycle}"
+    kapt "androidx.lifecycle:lifecycle-compiler:${versions.androidx.lifecycle}"
 
-    implementation "android.arch.paging:runtime:${versions.arch_paging}"
+    implementation "androidx.room:room-runtime:${versions.androidx.room}"
 
-    implementation "com.android.support:appcompat-v7:${versions.support_library}"
-    implementation "com.android.support:design:${versions.support_library}"
-    implementation "com.android.support:customtabs:${versions.support_library}"
-    implementation "com.android.support:palette-v7:${versions.support_library}"
+    implementation "androidx.paging:paging-runtime:${versions.androidx.paging}"
+    implementation "androidx.paging:paging-rxjava2:${versions.androidx.paging}"
 
-    implementation "com.android.support.constraint:constraint-layout:${versions.constraint_layout}"
+    implementation "androidx.appcompat:appcompat:${versions.androidx.appcompat}"
+    implementation "com.google.android.material:material:${versions.material_design}"
+    implementation "androidx.browser:browser:${versions.androidx.browser}"
+    implementation "androidx.palette:palette:${versions.androidx.palette}"
+    implementation "androidx.recyclerview:recyclerview:${versions.androidx.recyclerview}"
+    implementation "androidx.emoji:emoji:${versions.androidx.emoji}"
 
-    implementation "androidx.core:core-ktx:${versions.core_ktx}"
+    implementation "android.arch.work:work-runtime-ktx:${versions.androidx.work}"
 
-    implementation 'com.gabrielittner.threetenbp:lazythreetenbp:0.3.0'
+    implementation "androidx.constraintlayout:constraintlayout:${versions.androidx.constraint_layout}"
+
+    implementation "androidx.core:core-ktx:${versions.androidx.core_ktx}"
+
+    implementation "com.jakewharton.threetenabp:threetenabp:${versions.threetenabp}"
+
+    implementation "io.reactivex.rxjava2:rxjava:${versions.rx}"
+    implementation "io.reactivex.rxjava2:rxkotlin:${versions.rxkotlin}"
+    implementation "io.reactivex.rxjava2:rxandroid:2.1.0"
+
+    implementation 'com.cantrowitz:rxbroadcast:2.0.0'
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin}"
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${versions.coroutines}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}"
+
+    implementation "org.jetbrains:annotations:16.0.3"
 
     implementation "com.google.dagger:dagger-android:${versions.dagger}"
     implementation "com.google.dagger:dagger-android-support:${versions.dagger}"
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
     kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
 
+    compileOnly "com.squareup.inject:assisted-inject-annotations-dagger2:${versions.assistedinject}"
+    kapt "com.squareup.inject:assisted-inject-processor-dagger2:${versions.assistedinject}"
+
     implementation "com.github.bumptech.glide:glide:${versions.glide}"
     kapt "com.github.bumptech.glide:compiler:${versions.glide}"
 
+    implementation 'com.airbnb.android:mvrx:0.6.0'
+
     implementation "com.airbnb.android:epoxy:${versions.epoxy}"
-    //implementation "com.airbnb.android:epoxy-paging:${versions.epoxy}"
+    implementation "com.airbnb.android:epoxy-paging:${versions.epoxy}"
     implementation "com.airbnb.android:epoxy-databinding:${versions.epoxy}"
     kapt "com.airbnb.android:epoxy-processor:${versions.epoxy}"
 
-    testImplementation 'junit:junit:4.12'
-
-    androidTestImplementation("com.android.support.test.espresso:espresso-core:${versions.espresso}", {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    implementation 'com.github.rubensousa:gravitysnaphelper:1.5'
 
     debugImplementation "nl.littlerobots.rxlint:rxlint:${versions.rxlint}"
 
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {
-        transitive = true
-    }
+    implementation "com.google.firebase:firebase-core:${versions.firebase}"
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
 
-    implementation 'com.evernote:android-job:1.2.5'
+    testImplementation "junit:junit:${versions.junit}"
+
+    androidTestImplementation "androidx.test:runner:${versions.androidx.test_runner}"
+    androidTestImplementation "androidx.test:rules:${versions.androidx.test_rules}"
+    androidTestImplementation "androidx.test.espresso:espresso-core:${versions.espresso}"
 }
 
 def getGitHash() {

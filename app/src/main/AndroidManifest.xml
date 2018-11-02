@@ -17,7 +17,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.banes.chris.tivi">
+    package="app.tivi">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -38,19 +38,20 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="me.banes.chris.tivi.HANDLE_AUTHORIZATION_RESPONSE" />
+                <action android:name="app.tivi.HANDLE_AUTHORIZATION_RESPONSE" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="me.banes.chris.tivi" />
+                <data android:scheme="app.tivi" />
             </intent-filter>
         </activity>
 
         <activity
             android:name=".showdetails.ShowDetailsActivity"
-            android:theme="@style/Theme.Tivi.Light.Immerse"/>
+            android:parentActivityName=".home.HomeActivity"
+            android:theme="@style/Theme.Tivi.Light.Immerse" />
 
         <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="${fabric-api-key}" />
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
 
     </application>
 
